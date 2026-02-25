@@ -4,3 +4,10 @@ __pycache__/
 .env
 .ipynb_checkpoints/
 .vscode/
+nul
+*.log
+caroogocrm_vehicle.json
+api_stats.txt
+appraisal_examples.txt
+err.txt
+err2.txt

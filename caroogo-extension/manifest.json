@@ -1,0 +1,52 @@
+{
+  "manifest_version": 3,
+  "name": "Caroogo CRM AI Companion",
+  "version": "1.0",
+  "description": "AI-powered companion for Caroogo CRM to generate messages and provide intelligent suggestions.",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "tabs",
+    "scripting",
+    "webRequest"
+  ],
+  "host_permissions": [
+    "*://*.caroogocrm.com/*",
+    "*://caroogocrm.com/*",
+    "*://*.base44.app/*",
+    "*://base44.app/*",
+    "http://localhost:3000/*"
+  ],
+  "action": {
+    "default_popup": "popup/popup.html"
+  },
+  "background": {
+    "service_worker": "background/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.caroogocrm.com/*",
+        "*://caroogocrm.com/*",
+        "*://*.base44.app/*",
+        "*://base44.app/*"
+      ],
+      "js": [
+        "content/content.js"
+      ],
+      "css": [
+        "content/content.css"
+      ],
+      "run_at": "document_idle",
+      "world": "ISOLATED"
+    },
+    {
+      "matches": [
+        "http://localhost:3000/*"
+      ],
+      "js": [
+        "content/sync.js"
+      ]
+    }
+  ]
+}

@@ -167,6 +167,7 @@ def scrape_bill_collins():
                 break
                 
             new_this_batch = 0
+            vins_this_page = 0
             for card in cards:
                 if card.get("IsAdCard"): continue
                 
@@ -180,6 +181,7 @@ def scrape_bill_collins():
                     vin = comp_model.get("Vin")
                 
                 if not vin: continue
+                vins_this_page += 1
                 
                 make_model_str = v_data.get("VehicleMakeAndModel", "").strip()
                 make, *model_parts = make_model_str.split(" ", 1)
@@ -269,6 +271,10 @@ def scrape_bill_collins():
                 except Exception as e:
                     pass
             
+            if vins_this_page == 0:
+                print("No vehicles with VINs found. Stopping Bill Collins iteration.")
+                break
+
             total_scraped += new_this_batch
             print(f"Scraped {total_scraped} vehicles from Bill Collins Ford...")
             

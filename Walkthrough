@@ -1,0 +1,30 @@
+# Walkthrough - Capturing Deal Modification APIs
+
+I have successfully captured the API endpoints and payloads used to update a deal, add comments, and progress through the "Steps to the Sale" checklist.
+
+## Changes Made
+
+### Documentation
+- Updated [api_endpoints.md](file:///C:/Users/tee/.gemini/antigravity/brain/7d43d98f-53b3-4877-ae25-62c97ae550d8/api_endpoints.md) to include:
+    - `Update Deal` (General info like address)
+    - `Add Comment`
+    - `Steps to the Sale` (Progression checklist)
+- Updated [task.md](file:///C:/Users/tee/.gemini/antigravity/brain/7d43d98f-53b3-4877-ae25-62c97ae550d8/task.md) to reflect the completion of all deal modification tasks.
+
+## Verification Results
+
+### Update Deal API
+- **Endpoint:** `PUT /api/apps/6900d8f18678d0668840afe5/entities/Deal/{id}`
+- **Action:** Updated "Test Tester" deal with dummy address info (123 Main St, Louisville, KY 40202).
+
+### Add Comment API
+- **Endpoint:** `PUT /api/apps/6900d8f18678d0668840afe5/entities/Deal/{id}`
+- **Action:** Added comment "testing test" to the deal.
+
+### Steps to the Sale API
+- **Endpoint:** `PUT /api/apps/6900d8f18678d0668840afe5/entities/Deal/{id}`
+- **Action:** Clicked "Meet & Greet" to mark it as complete.
+
+![Meet & Greet Clicked](file:///C:/Users/tee/.gemini/antigravity/brain/7d43d98f-53b3-4877-ae25-62c97ae550d8/.system_generated/steps/572/screenshot_1.webp)
+
+The deal detail page now accurately reflects the updated address, the new comment, and the completed sales step.

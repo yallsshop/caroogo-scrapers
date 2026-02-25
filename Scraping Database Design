@@ -1,0 +1,110 @@
+# Ultimate Inventory Database Design & Scraping Strategy
+
+Based on the analysis of the requested dealership websites, here is a synthesized report and a proposed database schema for the "ultimate inventory database."
+
+## Website Scraping Discoveries
+
+1. **Caroogo.com**
+   - **Type**: Custom / Modern API
+   - **Endpoint**: `POST https://vehicles.caroogo.com/api/v2/Vehicle/VehicleSearch`
+   - **Payload**: JSON with pagination (`currentPage`, `pageSize`) and sorting.
+   - **Data Quality**: High. Returns structured JSON containing standard vehicle data, pricing, and image URLs.
+   - **Ease of Scraping**: Very Easy. Direct API access with predictable payloads and no complex bot protection observed.
+
+2. **Bill Collins Ford & Bill Collins Lincoln (DealerOn Sites)**
+   - **Type**: DealerOn Platform
+   - **Endpoint**: `GET https://www.billcollinsford.net/api/vhcliaa/vehicle-pages/cosmos/srp/vehicles/{accountId}/{siteId}`
+   - **Data Quality**: High. The API returns a robust JSON array of vehicles with detailed pricing breakdowns (MSRP, Dealer Discount, Ford Offers), standard equipment, technical specs, and VINs.
+   - **Detail Pages (Print View)**: `print-email-vehicledetailsvin.aspx` is server-side rendered HTML, but highly structured. It contains all technical specs, standard equipment, and exhaustive warranty info.
+   - **Ease of Scraping**: Easy. The internal API endpoint is completely unauthenticated and returns exactly what is needed for an inventory table.
+
+3. **Collins Nissan (Team Velocity / Apollo Sites)**
+   - **Type**: Team Velocity / Apollo Platform
+   - **Endpoint**: `POST https://www.collinsnissan.com/api/Inventory/getinventorymultiselectionfilters`
+     Returns inventory counts and filter categories, but the *actual* vehicle listings are often rendered server-side or via a different aggregated Apollo API.
+   - **Data Quality**: Medium. The filters API gives counts, but scraping the vehicles themselves requires either parsing the HTML of `/inventory/new` or finding the hidden data layer payload in the page source.
+   - **Ease of Scraping**: Medium. Requires slightly more complex HTML parsing or regex extraction from the inline scripts.
+
+4. **Window Sticker API**
+   - **Type**: PDF Output
+   - **Endpoint**: `https://www.billcollinsford.net/api/vhcliaa/inventory/.../window-sticker?sv=...`
+   - **Data Quality**: PDFs. 
+   - **Ease of Scraping**: Hard. Extracting data from these PDFs requires an OCR tool or a PDF text extraction library (like `pdfplumber` or `PyPDF2`), and the layouts change by OEM.
+
+5. **Carfax Reports**
+   - **Type**: Highly Protected
+   - **Endpoint**: `https://www.carfax.com/vehiclehistory/...`
+   - **Data Quality**: High, but inaccessible.
+   - **Ease of Scraping**: Blocked. Carfax uses **DataDome** bot-protection. Automated headless browsers and simple HTTP requests will be blocked with a captcha response. A specialized residential proxy service with anti-bot bypassing (e.g., ScrapingBee, ZenRows) is strictly required to reliably access these.
+
+---
+
+## Proposed Database Schema (Relational/SQL)
+
+To build the "ultimate" database, you need tables designed to handle commonalities across all OEMs while supporting the edge-case fields found in the detailed endpoints.
+
+### 1. `dealerships` Table
+Tracks the sources of the data.
+- `id` (UUID/PK)
+- `name` (String) - e.g., "Bill Collins Ford"
+- `website_url` (String)
+- `platform` (String) - e.g., "DealerOn", "Caroogo", "Apollo"
+- `created_at` (Timestamp)
+
+### 2. `vehicles` Table
+The core inventory table.
+- `vin` (String/PK) - Primary key, universal identifier.
+- `dealership_id` (UUID/FK)
+- `stock_number` (String)
+- `condition` (Enum: 'New', 'Used', 'CPO')
+- `year` (Integer)
+- `make` (String)
+- `model` (String)
+- `trim` (String)
+- `body_style` (String) - e.g., "4D Crew Cab", "SUV"
+- `exterior_color` (String)
+- `interior_color` (String)
+- `transmission` (String)
+- `drivetrain` (String) - e.g., "AWD", "FWD", "4WD"
+- `engine_description` (String) - e.g., "2.0L EcoBoost"
+- `doors` (Integer)
+- `mileage` (Integer)
+- `mpg_city` (Integer)
+- `mpg_hwy` (Integer)
+- `status` (Enum: 'In Stock', 'In Transit', 'Sold')
+- `scraped_at` (Timestamp)
+
+### 3. `vehicle_pricing` Table
+Prices change often; separating pricing allows for historical price tracking.
+- `id` (UUID/PK)
+- `vin` (String/FK)
+- `msrp` (Numeric)
+- `retail_price` (Numeric)
+- `internet_price` (Numeric)
+- `dealer_discount` (Numeric)
+- `currency` (String) - default 'USD'
+- `recorded_at` (Timestamp)
+
+### 4. `vehicle_features` Table
+To capture the massive "Standard Equipment" lists found on the DealerOn print pages.
+- `id` (UUID/PK)
+- `vin` (String/FK)
+- `category` (String) - e.g., "Interior", "Safety", "Exterior"
+- `feature_name` (String) - e.g., "Rear View Camera", "Pre-Collision Assist"
+
+### 5. `vehicle_media` Table
+Store image URLs.
+- `id` (UUID/PK)
+- `vin` (String/FK)
+- `media_type` (Enum: 'Image', 'Video', 'Window_Sticker_PDF')
+- `url` (Text)
+- `is_primary` (Boolean)
+
+---
+
+## Recommended Scraping Architecture
+
+1. **Crawler Core**: Python with `httpx` (for fast async API calls to Caroogo/DealerOn APIs) and `BeautifulSoup` (for HTML parsing on Apollo sites or Print Pages).
+2. **Bot Evasion**: Use a service like *ZenRows* or *ScrapingBee* for Carfax and Apollo sites if they start blocking your requests.
+3. **Database Layer**: PostgreSQL via `SQLAlchemy` or `Prisma`, to enforce schema typing and handle the large volume of data safely.
+4. **PDF Parser Worker**: A background queue (like Celery) that downloads the Window Sticker PDFs and uses `pdfplumber` to extract structured text based on OEM-specific coordinate mapping.

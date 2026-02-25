@@ -1,0 +1,258 @@
+# Caroogo CRM API Endpoints
+
+This document contains reverse-engineered API endpoints from the Caroogo CRM for use in the AI wrapper.
+
+## Global Config
+- **Base URL:** `https://base44.app/api/apps/6900d8f18678d0668840afe5`
+- **Headers Required:**
+  - `Authorization`: `Bearer <token>`
+  - `x-app-id`: `6900d8f18678d0668840afe5`
+  - `Content-Type`: `application/json`
+
+---
+
+## Deal Management
+
+> [!CAUTION]
+> **Crucial Distinction: Create vs. Update**
+> - Use **`POST`** ONLY when you want to generate a **brand new** deal record. 
+> - Use **`PUT`** for **all subsequent changes** to an existing deal.
+> - **Never repeat a `POST` request** to capture an ID; doing so will create duplicate deals in the CRM. If you lose an ID, use the `Fetch` (GET) endpoint to find it.
+
+### Create Deal
+**Endpoint:** `POST /entities/Deal`
+
+**Action:** **INITIAL CREATION ONLY**
+
+**Description:** Creates a new deal entity.
+
+**Target Payload Example:**
+```json
+{
+  "dealership": "1",
+  "deal_type": "phone",
+  "lead_source": "phone_call_inbound",
+  "customer_in_showroom": false,
+  "status": "new",
+  "buyer_first_name": "Test",
+  "buyer_middle_name": "",
+  "buyer_last_name": "Tester",
+  "buyer_email": "tniche7594@gmail.com",
+  "buyer_license_number": "",
+  "buyer_address": "",
+  "buyer_city": "",
+  "buyer_state": "",
+  "buyer_zip": "",
+  "buyer_primary_phone": "5024433892",
+  "buyer_mobile": "",
+  "co_buyer_first_name": "",
+  "co_buyer_middle_name": "",
+  "co_buyer_last_name": "",
+  "co_buyer_email": "",
+  "co_buyer_license_number": "",
+  "co_buyer_address": "",
+  "co_buyer_city": "",
+  "co_buyer_state": "",
+  "co_buyer_zip": "",
+  "co_buyer_primary_phone": "",
+  "co_buyer_mobile": "",
+  "vehicle_condition": "",
+  "vehicle_year": "",
+  "vehicle_make": "",
+  "vehicle_model": "",
+  "vehicle_trim": "",
+  "vehicle_vin": "",
+  "vehicle_stock_number": "",
+  "has_trade_in": false,
+  "trade_year": "",
+  "trade_make": "",
+  "trade_model": "",
+  "trade_trim": "",
+  "trade_mileage": null,
+  "trade_vin": "",
+  "trade_license_plate": "",
+  "sales_person_1_first_name": "Tyler",
+  "sales_person_1_last_name": "Nicheols",
+  "sales_person_1_email": "tnicheols@collinsautogroup.com",
+  "sales_person_2_first_name": "",
+  "sales_person_2_last_name": "",
+  "sales_person_2_email": "",
+  "bdc_manager_email": "",
+  "sales_manager_email": "",
+  "finance_manager_email": "",
+  "up_protection_start_time": "2026-02-25T06:39:49.435Z",
+  "up_protection_assigned_to_name": "Tyler Nicheols",
+  "original_created_date": "2026-02-25T01:39:49.436Z",
+  "uploaded_documents": [],
+  "created_by_email": "tnicheols@collinsautogroup.com",
+  "created_by_name": "tnicheols",
+  "bdc_manager_name": "",
+  "sales_manager_name": "",
+  "finance_manager_name": "",
+  "comments": []
+}
+```
+
+**Response Example:**
+The response contains the full Deal object with assigned `id` (e.g. `699e993533be7d14b00ff343`) and defaults.
+
+---
+
+### Fetch Existing Deal
+**Endpoint:** `GET /entities/Deal?q={"id":"<deal_id>"}`
+
+**Description:** Retrieves a single deal by its ID.
+
+---
+
+### Fetch Deal History/Logs
+**Endpoint:** `GET /entities/DealHistory?q={"deal_id":"<deal_id>"}&sort=-created_date&limit=100`
+
+---
+
+### Check Duplicate Deal (Function)
+**Endpoint:** `POST /functions/checkDuplicateDeal`
+**(Note: Expected payload structure was not captured, but this function runs automatically when initiating a new deal)**
+
+---
+
+### Sync Deal to High Impact (Function)
+**Endpoint:** `POST /functions/syncDealToHighImpact`
+**(Note: Executed right after Deal creation)**
+
+---
+
+## Messaging & Communication
+
+### Send SMS (GoTo Function)
+**Endpoint:** `POST /functions/gotoSendSMS`
+
+**Description:** Sends an SMS message to the customer via GoTo integration.
+
+**Request Payload:**
+```json
+{
+  "to_number": "5024433892",
+  "from_number": "5023713114",
+  "message": "This is a test message from the caroogo wrapper exploration.",
+  "deal_id": "699e993533be7d14b00ff343",
+  "customer_name": "Test Tester"
+}
+```
+
+### Send Email (Outlook/O365 Function)
+**Endpoint:** `POST /functions/o365SendEmail`
+
+**Description:** Sends an email to the customer using the user's connected Office 365 account.
+
+**Request Payload:**
+```json
+{
+  "to_email": "tniche7594@gmail.com",
+  "subject": "Test Subject",
+  "message": "Dear Test,\n\nThank you for choosing Bill Collins...\n",
+  "deal_id": "699e993533be7d14b00ff343",
+  "customer_name": "Test Tester"
+}
+```
+
+### Update Deal
+
+**Endpoint:** `PUT https://base44.app/api/apps/6900d8f18678d0668840afe5/entities/Deal/{deal_id}`
+
+**Method:** `PUT`
+
+**Action:** **MODIFY EXISTING RECORD**
+
+> [!TIP]
+> Use this endpoint for adding addresses, changing names, updating phone numbers, or any other metadata changes after the deal has been created.
+
+**Request Payload:**
+```json
+{
+  "buyer_first_name": "Test",
+  "buyer_last_name": "Tester",
+  "buyer_email": "tniche7594@gmail.com",
+  "buyer_primary_phone": "5024433892",
+  "buyer_address": "123 Main St",
+  "buyer_city": "Louisville",
+  "buyer_state": "KY",
+  "buyer_zip": "40202",
+  "deal_type": "phone",
+  "dealership": "1",
+  "status": "new",
+  "lead_source": "phone_call_inbound",
+  "customer_in_showroom": false
+  // ... (Full entity state is sent, many fields are null or empty strings by default)
+}
+```
+
+**Response:**
+Returns the full updated deal object.
+
+---
+
+### Update Sales Steps ("Steps to the Sale")
+
+**Endpoint:** `PUT https://base44.app/api/apps/6900d8f18678d0668840afe5/entities/Deal/{deal_id}`
+
+**Method:** `PUT`
+
+**Description:** Updates the progression of the sales checklist.
+
+**Request Payload:**
+```json
+{
+  "steps": {
+    "meet_greet": {
+      "completed": true,
+      "completed_date": "2026-02-25T07:12:47.376Z",
+      "completed_by": "UserName",
+      "completed_by_email": "user@email.com"
+    },
+    "delivery": null,
+    "no_warranty_purchased": null,
+    "establish_common_ground": null,
+    "caroogo": {
+      "completed_by_email": null,
+      "completed": false,
+      "completed_by": null,
+      "completed_date": null
+    },
+    "trade_in": null,
+    "to_business_office": null,
+    "referral_sheet": null,
+    "needs_assessment": null,
+    "product_demonstration": null,
+    "product_presentation": null,
+    "price_value": null
+  }
+}
+```
+
+**Response:**
+Returns the full updated deal object.
+
+### Add Comment
+
+**Endpoint:** `PUT https://base44.app/api/apps/6900d8f18678d0668840afe5/entities/Deal/{deal_id}`
+
+**Method:** `PUT`
+
+**Request Payload:**
+```json
+{
+  "comments": [
+    {
+      "text": "testing test",
+      "created_by": "user@email.com",
+      "created_by_name": "UserName",
+      "created_date": "2026-02-25T07:08:46.354Z",
+      "edit_history": []
+    }
+  ]
+}
+```
+
+**Response:**
+Returns the full updated deal object.

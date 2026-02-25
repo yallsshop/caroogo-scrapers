@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Caroogo AI Settings</title>
+  <link rel="stylesheet" href="popup.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo-circle"></div>
+      <h1>Caroogo AI</h1>
+      <p class="subtitle">Companion Settings</p>
+    </header>
+
+    <main>
+      <div class="card">
+        <h2>Configuration</h2>
+        <div class="input-group">
+          <label for="ai-provider">AI Provider</label>
+          <select id="ai-provider">
+            <option value="gemini">Google Gemini</option>
+            <option value="openai">OpenAI (ChatGPT)</option>
+          </select>
+        </div>
+        
+        <div class="input-group">
+          <label for="api-key">API Key</label>
+          <input type="password" id="api-key" placeholder="Enter your API key">
+          <p class="hint">Your key is stored securely in your browser.</p>
+        </div>
+
+        <button id="save-btn" class="btn-primary">
+          <span class="btn-text">Save Settings</span>
+          <div class="spinner hidden"></div>
+        </button>
+      </div>
+
+      <div id="status-message" class="status hidden">
+        Settings saved successfully!
+      </div>
+    </main>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

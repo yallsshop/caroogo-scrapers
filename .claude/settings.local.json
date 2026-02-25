@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(timeout 5)",
+      "Bash(netstat -ano)",
+      "Bash(findstr \":3000\\|:3001\")",
+      "Bash(npm run dev)",
+      "Bash(npx tsc --noEmit)",
+      "Bash(npx next dev --experimental-https=false)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nFix inventory display issues and add vehicle detail view\n\n- Remove 500 vehicle limit from API route\n- Fix photo display by joining vehicle_media table\n- Add stock number display on vehicle cards\n- Add stock number to search functionality\n- Make vehicle cards clickable to detail page\n- Create detailed vehicle view with image carousel\n- Fix Next.js 16 params Promise typing\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

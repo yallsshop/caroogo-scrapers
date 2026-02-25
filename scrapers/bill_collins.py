@@ -23,15 +23,23 @@ class BillCollinsScraper(BaseScraper):
             cards = data.get("DisplayCards", [])
             if not cards: break
             
+            vins_this_page = 0
             for card in cards:
                 if card.get("IsAdCard"): continue
                 v_card = card.get("VehicleCard", {})
                 vin = v_card.get("Vin")
                 if not vin: continue
+                
+                vins_this_page += 1
                 if vin in seen_vins:
                     print(f"Detected loop with VIN {vin}, stopping scrape.")
                     return
                 seen_vins.add(vin)
+            
+            if vins_this_page == 0:
+                print("No vehicles with VINs found on this page. Stopping scrape.")
+                break
+
 
                 # Basic Vehicle Data
                 vehicle_record = {
