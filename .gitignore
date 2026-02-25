@@ -1,0 +1,6 @@
+caroogo-dashboard/
+__pycache__/
+*.pyc
+.env
+.ipynb_checkpoints/
+.vscode/
