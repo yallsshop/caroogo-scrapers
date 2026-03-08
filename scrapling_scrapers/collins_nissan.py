@@ -17,10 +17,10 @@ class CollinsNissanScraper(BaseScraper):
         print(f"DEBUG: Using Dealership ID: {self.dealer_id}")
 
         fetcher = Fetcher(auto_match=False)
-        page = fetcher.get(f"{self.BASE_URL}/inventory/new", follow_redirects=True)
-
-        if page.status == 404:
-            print(f"Failed to load inventory page: {page.status}")
+        try:
+            page = fetcher.get(f"{self.BASE_URL}/inventory/new", follow_redirects=True)
+        except Exception as e:
+            print(f"Failed to load inventory page: {e}")
             return
 
         # Collect model links containing /inventory/new/nissan/
@@ -38,10 +38,10 @@ class CollinsNissanScraper(BaseScraper):
 
     def _scrape_model_page(self, fetcher: Fetcher, url: str):
         print(f"Scraping model page: {url}")
-        page = fetcher.get(url, follow_redirects=True)
-
-        if page.status == 404:
-            print(f"Failed to load model page: {url}")
+        try:
+            page = fetcher.get(url, follow_redirects=True)
+        except Exception as e:
+            print(f"Failed to load model page {url}: {e}")
             return
 
         vehicles = page.css(".si-vehicle-box")
@@ -99,5 +99,5 @@ class CollinsNissanScraper(BaseScraper):
     @staticmethod
     def _extract_vin(element) -> str | None:
         """Regex fallback VIN extraction from element HTML."""
-        match = re.search(r"[A-HJ-NPR-Z0-9]{17}", str(element.html))
+        match = re.search(r"[A-HJ-NPR-Z0-9]{17}", element.html_content)
         return match.group(0) if match else None

@@ -25,11 +25,6 @@ class CarGurusEnricher(BaseScraper):
             fetcher = StealthyFetcher(auto_match=False)
             page = fetcher.fetch(search_url, headless=True, network_idle=True)
 
-            print(f"DEBUG: CarGurus status {page.status}")
-            if page.status == 404:
-                print(f"Failed to reach CarGurus for {vin}: {page.status}")
-                return
-
             enrichment_data = {}
 
             # 1. Try __NEXT_DATA__ JSON (most reliable)
@@ -59,13 +54,10 @@ class CarGurusEnricher(BaseScraper):
                     enrichment_data["market_rating"] = rating_el.text
 
             if not enrichment_data.get("days_on_market"):
-                # XPath text search for "days on CarGurus"
-                matches = page.xpath('//*[contains(text(), "days on CarGurus")]')
-                if matches:
-                    dom_text = matches[0].text
-                    match = re.search(r"(\d+)\s+days", dom_text)
-                    if match:
-                        enrichment_data["days_on_market"] = int(match.group(1))
+                # Search raw HTML for "days on CarGurus" text — safer than XPath text node search
+                raw_match = re.search(r"(\d+)\s+days on CarGurus", page.html_content)
+                if raw_match:
+                    enrichment_data["days_on_market"] = int(raw_match.group(1))
 
             if enrichment_data:
                 enrichment_data = {k: v for k, v in enrichment_data.items() if v is not None}
