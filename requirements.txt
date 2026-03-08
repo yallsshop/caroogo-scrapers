@@ -1,3 +1,4 @@
+scrapling[fetchers]
 annotated-types==0.7.0
 anyio==4.12.1
 attrs==25.3.0
