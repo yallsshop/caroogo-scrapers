@@ -16,7 +16,7 @@ class CollinsNissanScraper(BaseScraper):
         print(f"Starting {self.dealer_name} Scrape (Scrapling version)...")
         print(f"DEBUG: Using Dealership ID: {self.dealer_id}")
 
-        fetcher = Fetcher(auto_match=False)
+        fetcher = Fetcher()
         try:
             page = fetcher.get(f"{self.BASE_URL}/inventory/new", follow_redirects=True)
         except Exception as e:
@@ -51,11 +51,8 @@ class CollinsNissanScraper(BaseScraper):
             print(f"DEBUG: Processing vehicle element {i + 1}")
             try:
                 # Broadened selector: a with class containing "name" or "title", fallback h2/h3
-                title_el = (
-                    v.css_first('a[class*="name"], a[class*="title"]')
-                    or v.find("h2")
-                    or v.find("h3")
-                )
+                _matches = v.css('a[class*="name"], a[class*="title"]')
+                title_el = (_matches[0] if _matches else None) or v.find("h2") or v.find("h3")
                 print(f"DEBUG: Title element found: {bool(title_el)}")
                 if not title_el:
                     continue
@@ -81,7 +78,8 @@ class CollinsNissanScraper(BaseScraper):
                 }
 
                 # Price
-                price_box = v.css_first(".si-vehicle-price")
+                _price_results = v.css(".si-vehicle-price")
+                price_box = _price_results[0] if _price_results else None
                 if price_box:
                     price_text = price_box.text.replace("$", "").replace(",", "").strip()
                     try:
