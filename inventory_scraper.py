@@ -13,10 +13,9 @@ from datetime import datetime
 load_dotenv()
 
 SUPABASE_URL = "https://hwferrqmgqcvqfsqsjmp.supabase.co"
-SUPABASE_KEY = os.getenv(
-    "SUPABASE_SERVICE_ROLE_KEY",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh3ZmVycnFtZ3FjdnFmc3Fzam1wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3ODkxNDksImV4cCI6MjA4NjM2NTE0OX0.XOLifQXc2AmRuizRkKO6QEsjqY2k0_fhHnfEIPmJMAg",
-)
+SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+if not SUPABASE_KEY:
+    raise RuntimeError("SUPABASE_SERVICE_ROLE_KEY environment variable is not set")
 
 API_URL = "https://vehicles.caroogo.com/api/v2/Vehicle/VehicleSearch"
 PAGE_SIZE = 50
