@@ -29,7 +29,8 @@ python scraper.py
 
 Scripts expect these in a `.env` file or GitHub Actions secrets:
 - `SUPABASE_SERVICE_ROLE_KEY` — service role key for Supabase writes
-- `SUPABASE_URL` — project URL (hardcoded in some scripts as `https://hwferrqmgqcvqfsqsjmp.supabase.co`)
+
+Note: the Supabase project URL (`https://hwferrqmgqcvqfsqsjmp.supabase.co`) is hardcoded in every scraper script, not read from the environment. Changing the target project requires editing the source files directly.
 
 ## Architecture
 
